@@ -38,7 +38,7 @@ git push -u origin your-branch-name
 
 4. Go to GitHub → Click "Compare & pull request" → Create the Pull Request. (all of this should be under the pull requests tab in the repository)
 
-5. pull the edited stuff yourself in your terminal with this, your-branch-name should be the name of the branch you want to pull from, ****most likely not your branch name****
+5. pull the edited stuff yourself in your terminal with this, your-branch-name should be the name of the branch you want to pull from, ****make sure to enter your own branch name instead of your-branch-name****
 
 git fetch origin
 git checkout your-branch-name
