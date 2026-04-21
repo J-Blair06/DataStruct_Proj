@@ -11,37 +11,6 @@ const int INF = 1000000000; //used to represent infinity
 
 /*******************************************************************************************************/
 
-//Stack class using templates and vectors
-template <typename T>
-class Stack {
-private:
-    vector<T> data;
-public:
-    void push (const T& val) { data.push_back(val); }
-    void pop () { if (!empty()) data.pop_back(); }
-    T top() const {return data.back(); }
-    bool empty() const { return data.empty(); }
-    size_t size() const { return data.size(); }    
-};
-
-/*******************************************************************************************************/
-
-// queue class using templates and vectors
-template <typename T>
-class Queue {
-private:
-    vector<T> data;
-    size_t frontIdx = 0;
-public:
-    void push(const T& val) { data.push_back(val); }
-    void pop() { if (!empty()) ++frontIdx; }
-    T front() const { return data[frontIdx]; }
-    bool empty() const { return frontIdx >= data.size(); }
-    size_t size() const {return data.size() - frontIdx; }
-};
-
-/*******************************************************************************************************/
-
 template <typename T>
 class MinHeap {
 public:
@@ -248,12 +217,11 @@ vector<string> parseCSVLine(const string& line) {
 
 //function addAirport - adds a new airport if it doesn't exist and returns its index
 
-int addAirport(const string& code, const string& city, vector<string>& codes, 
-vector<string>& statesv) {
-    for (size_t i = 0; i < codes.size(); ++i){
-        if (codes[i] == code) return i;
-    }
-    codes.push_back(code);
+int addAirport(const string& code, const string& city, vector<string>& codes, vector<string>& statesv) {
+    string cleanCode = CutOutBlanks(code);
+    for (size_t i = 0; i < codes.size(); ++i)
+        if (codes[i] == cleanCode) return i;
+    codes.push_back(cleanCode);
     statesv.push_back(takeOutState(city));
     return codes.size() - 1;
 }
@@ -262,10 +230,10 @@ vector<string>& statesv) {
 
 //getIndex - returns the index of an airport by its 3 - letter code.
 //uses linear search
-int getIndex(const string& code, const vector<string>& codes){
-    for(size_t i = 0; i < codes.size(); ++i){
-        if(codes[i] == code) return i;
-    }
+int getIndex(const string& code, const vector<string>& codes) {
+    string clean = CutOutBlanks(code);
+    for (size_t i = 0; i < codes.size(); ++i)
+        if (codes[i] == clean) return i;
     return -1;
 }
 
@@ -435,8 +403,8 @@ int main() {
     while (getline(fin, line)) {
     if (!line.empty()) {
         allLines.push_back(line); }
-    fin.close();
     }
+    fin.close();
 
     for(const auto& l : allLines){
         auto fields = parseCSVLine(l);
