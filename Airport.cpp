@@ -159,6 +159,25 @@ void reverseVector(vector<int>& v){
     }
 }
 
+/*******************************************************************************************************/
+//function to determine which set a node belongs to
+//helps determine whether adding an edge would create a cycle
+//used for kruskals
+
+int findSet(int x, vector<int>& parent){
+    int root = x;
+    while (parent[root] != root)
+        root = parent[root];
+
+    while(x != root){
+        int next = parent[x];
+        parent[x] = root;
+        x = next;
+    }
+    return root;
+}
+
+/*******************************************************************************************************/
 
 //function CutOutBlanks which will remove blank spaces
 // from the beginning and end of a string
@@ -278,7 +297,7 @@ const vector<vector<Edge>>& adj) {
     int total = 0;
     for (size_t i = 0; i +1 < path.size(); ++i){
         int u = path[i], v = path[i + 1];
-        for( const auto& e : adj[u]) {
+        for( const Edge& e : adj[u]) {
             if (e.to == v) { total += e.cost; break; }
         }
     }
@@ -306,7 +325,7 @@ const vector<vector<Edge>>& adj, int n) {
         if (visited[u]) continue;
         visited[u] = true;
 
-        for (const auto& e : adj[u]) {
+        for (const Edge& e : adj[u]) {
             int v = e.to;
             if (dist[u] + (int)e.dist < dist[v]) {
                 dist[v] = dist[u] + (int)e.dist;
@@ -337,7 +356,7 @@ const vector<vector<Edge>>& adj, int n) {
     for(int edges = 1; edges <= maxEdges; ++edges) {
         for(int u = 0; u < n; ++u){
             if(dp[edges - 1][u] == INF) continue;
-            for( const auto& e : adj[u]){
+            for( const Edge& e : adj[u]){
                 int v = e.to;
                 int newDist = dp[edges - 1][u]+ e.dist;
                 if (newDist < dp[edges][v]){
@@ -420,8 +439,8 @@ int main() {
     }
     fin.close();
 
-    for(const auto& l : allLines){
-        auto fields = parseCSVLine(l);
+    for(const string& l : allLines){
+        vector<string> fields = parseCSVLine(l);
         if (fields.size() < 6 || fields[0] == "Origin_airport") {
             continue;
         }
@@ -434,8 +453,8 @@ int main() {
     vector<vector<int>> dirCost(n, vector<int>(n, INF));
     vector<int> inDegree(n, 0);
 
-    for(const auto& l : allLines) {
-        auto fields = parseCSVLine(l);
+    for(const string& l : allLines) {
+        vector<string> fields = parseCSVLine(l);
         if(fields.size() < 6 || fields[0] == "Origin_airport"){
             continue;
         }
@@ -522,7 +541,7 @@ int main() {
                 int u = curr.node;
                 if(visited[u]) continue;
                 visited[u] = true;
-                for(const auto& e : adj[u]){
+                for(const Edge& e : adj[u]){
                     int v = e.to;
                     if (dist[u] + (int)e.dist < dist[v]) {
                         dist[v] = dist[u] + (int)e.dist;
@@ -553,7 +572,7 @@ int main() {
                 cout << "Shortest paths from " << orig << " to " << state <<
                 " state airports are:" << endl;
                 cout << "Path\t\tLength\tCost" << endl;
-                for (const auto& r : results) {
+                for (const PathDisplay& r : results) {
                     cout << r.pathStr << "\t" << r.length << "\t" << r.cost << endl;
                 }
             }
@@ -600,7 +619,7 @@ int main() {
             }
             sortConns(conns);
             cout << "Airport\tConnections" << endl;
-            for(const auto& c : conns) cout << c.code << "\t" << c.cnt << endl;
+            for(const Conn& c : conns) cout << c.code << "\t" << c.cnt << endl;
         }
 
 /*******************************************************************************************************/
@@ -617,7 +636,7 @@ int main() {
                     undirEdges.push_back({i, j, minC});
                 }
             }
-            for(const auto& e: undirEdges) {
+            for(const UEdge& e: undirEdges) {
                 cout << codes[e.u] << " -- " << codes[e.v] << "(cost = " << e.cost << ")\n";
             }
             cout << "Total undirected edges in G_u: "<< undirEdges.size() << endl;
@@ -638,7 +657,7 @@ int main() {
                 }
             }
             vector<vector<UEdge>> undirAdj(n);
-            for(const auto& e : undirEdges) {
+            for(const UEdge& e : undirEdges) {
                 undirAdj[e.u].push_back({e.v, 0, e.cost});
                 undirAdj[e.v].push_back({e.u, 0, e.cost});
             }
@@ -659,7 +678,7 @@ int main() {
                 }
                 if(u == -1) break;
                 inMST[u] = true;
-                for(const auto & e : undirAdj[u]){
+                for(const UEdge& e : undirAdj[u]){
                     int v = e.u;
                     int w = e.cost;
                     if(!inMST[v] && (int)w < minC[v]){
@@ -709,7 +728,7 @@ int main() {
         auto find = [&](int x) -> int {
                 int root = x;
                 while (parent[root] != root) root = parent[root];
-                // path compression
+               
                 while (x != root) {
                     int next = parent[x];
                     parent[x] = root;
@@ -720,9 +739,9 @@ int main() {
 
         vector<UEdge> mstEdges;
         int totalCost = 0;
-        for(const auto& e : undirEdges){
-            int pu = find(e.u);
-            int pv = find(e.v);
+        for(const UEdge& e : undirEdges){
+            int pu = findSet(e.u, parent);
+            int pv = findSet(e.v, parent);
             if(pu != pv) {
                 parent[pu] = pv;
                 mstEdges.push_back(e);
@@ -732,7 +751,7 @@ int main() {
 
         cout << "Minimal Spanning Tree:" << endl;
         cout << "Edge\tWeight" << endl;
-        for (const auto& e : mstEdges) {
+        for (const UEdge& e : mstEdges){
             cout << codes [e.u] <<" - "<<codes[e.v] << "\t" << e.cost << endl;
         }
         cout << "Total Cost of MST: " << totalCost << endl;
