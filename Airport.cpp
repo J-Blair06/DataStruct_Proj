@@ -3,7 +3,7 @@
 #include <vector>
 #include <string>
 #include <limits>
-#include <algorithm>
+
 
 using namespace std;
 
@@ -146,6 +146,20 @@ struct PathDisplay {
 
 /*******************************************************************************************************/
 
+//function to reverse vectors
+void reverseVector(vector<int>& v){
+    int i = 0;
+    int j = (int)v.size() - 1;
+    while(i < j) {
+        int tmp = v[i];
+        v[i] = v[j];
+        v[j] = tmp;
+        i++;
+        j--;
+    }
+}
+
+
 //function CutOutBlanks which will remove blank spaces
 // from the beginning and end of a string
 //is used when parsing CSV city names
@@ -249,7 +263,7 @@ vector<int> reconstructPath(const vector<int>&prev, int start, int goal){
         if (at == start) break;
     }
     if (!path.empty() && path.back() != start) return {};
-    reverse(path.begin(), path.end());
+    reverseVector(path);
     return path;
 }
 
@@ -346,7 +360,7 @@ const vector<vector<Edge>>& adj, int n) {
         --currE;
     }
 
-    reverse(path.begin(), path.end());
+    reverseVector(path);
     if(path.empty() || path[0] != start) return {{}, INF};
     return {path, dp[maxEdges][goal]};
 }
